@@ -36,8 +36,16 @@ assets/sfx/       효과음
 
 - `CFG` 맨 위 설정: 게임 속도, 낮밤 전환 간격과 시간, 갈매기 크기, 구름 개수와 속도, 생선 간격, 점프 힘·중력·짧은 점프 높이
 - `GULL_BOTTOM`: 갈매기 3단계 높이 (바닥 / 서 있는 펭귄 머리 / 하늘)
-- `AD_URL`: 게임오버 때 나오는 버튼의 연결 주소 (버튼 문구는 `js/i18n.js`의 `feed`)
+- `CFG.adEvery`: 게임오버 몇 판마다 광고 버튼을 보여줄지 (기본 3판). 버튼을 누르면 이동 안내 창이 뜨고, 확인하면 `CFG.adUrl`(UTM 표시 포함)이 새 탭으로 열립니다. 문구는 `js/i18n.js`의 `feed`, `dlg*`
 - 바다표범 충돌 범위: `upd()` 안의 `o.k==='l'` 부분 (몸통 가운데 절반만 닿으면 게임오버)
+
+## 링크 미리보기와 통계
+
+- `index.html` 맨 위의 `og:`·`twitter:` 태그가 디스코드·레딧·페이스북에서 보이는 미리보기입니다. 이미지는 `assets/og.png`입니다.
+  실제 주소가 정해지면 `og:image`를 `https://...`로 시작하는 전체 주소로 바꾸고 `og:url`을 추가하세요. 상대 경로는 일부 사이트에서 이미지가 안 보입니다.
+- 게임은 `game_start`, `game_over`(점수·생선·누적 판 수), `share`(플랫폼), `ad_shown`, `ad_open`, `ad_go`, `ad_no`, `mute` 이벤트를 보냅니다.
+  페이지에 Google Analytics(`gtag`)가 있으면 자동으로 전송되고, 직접 받으려면 `window.addEventListener('peggy:event', e => console.log(e.detail))`처럼 쓰면 됩니다. 아직 통계 서비스는 연결하지 않았습니다.
+- 광고 버튼 주소의 `utm_source=peggy` 표시 덕분에 onedollardrive.com 쪽 통계에서 게임에서 온 방문자를 따로 볼 수 있습니다.
 
 ## 테스트용 도구
 
@@ -48,6 +56,8 @@ __dbg.setDist(499)     // 점수를 499로 바꿔서 곧바로 밤 전환 보기
 __dbg.put('g', 1, 100) // 갈매기(g) 중간 높이(1)를 x=100에 놓기. 'l' 바다표범, 's' 눈사람
 __dbg.god(true)        // 죽지 않기
 __dbg.state()          // 현재 상태 보기
+__dbg.setGames(2)      // 지금까지 한 판 수를 2로 (한 판 더 하면 광고 버튼이 나오는지 확인)
+__dbg.events()         // 지금까지 보낸 통계 이벤트 보기
 ```
 
 ## 스프라이트 규칙

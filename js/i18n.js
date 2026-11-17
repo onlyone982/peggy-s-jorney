@@ -10,6 +10,7 @@
 
 const DICT={
   en:{
+    dlgTitle:'Peggy is still hungry! 🐧', dlgBody:'Peggy ate {f} fish this run, but she wants more. Help her out at {d}. It opens in a new tab.', dlgGo:'Go to {d}', dlgNo:'Not now', mute:'Mute sound', unmute:'Turn sound on', shareScore:'Peggy ate {f} fish and ran {s} points! Can you beat her? 🐧', shareIdle:"Run with Peggy in peggy's journey! 🐧",
     jump:'▲ Jump', slide:'▼ Slide (hold)',
     tip:'PC: Space or ↑ to jump (hold longer to jump higher), ↓ to slide · Mobile: tap to jump (hold longer for a higher jump)',
     press:'PRESS SPACE / TAP', over:'GAME OVER', retry:'SPACE / TAP TO RETRY',
@@ -19,6 +20,7 @@ const DICT={
     ig:'Instagram', fb:'Facebook', rd:'Reddit', dc:'Discord'
   },
   ko:{
+    dlgTitle:'페기가 아직 배고파요! 🐧', dlgBody:'페기가 이번 판에 생선을 {f}마리 먹었지만 더 먹고 싶대요. {d}에서 페기를 도와주세요. 새 탭으로 열려요.', dlgGo:'{d}로 이동', dlgNo:'다음에요', mute:'소리 끄기', unmute:'소리 켜기', shareScore:'페기가 생선 {f}마리를 먹고 {s}점을 달렸어요! 이길 수 있어요? 🐧', shareIdle:"페기와 함께 달려요, peggy's journey! 🐧",
     jump:'▲ 점프', slide:'▼ 숙이기 (누르고 있기)',
     tip:'PC: 스페이스 또는 ↑ 점프(길게 누르면 더 높이), ↓ 숙이기 · 모바일: 화면을 탭하면 점프(길게 누르면 더 높이)',
     press:'스페이스 / 터치로 시작', over:'게임 오버', retry:'스페이스 / 터치로 다시 시작',
@@ -28,6 +30,7 @@ const DICT={
     ig:'인스타그램', fb:'페이스북', rd:'레딧', dc:'디스코드'
   },
   ja:{
+    dlgTitle:'ペギーはまだお腹ぺこぺこ! 🐧', dlgBody:'ペギーは今回、魚を{f}匹食べましたが、もっと食べたいそうです。{d}でペギーを助けてあげてください。新しいタブで開きます。', dlgGo:'{d}へ移動', dlgNo:'今はやめておく', mute:'音を消す', unmute:'音を出す', shareScore:'ペギーは魚を{f}匹食べて{s}点まで走りました!あなたは勝てる? 🐧', shareIdle:"ペギーと一緒に走ろう、peggy's journey! 🐧",
     jump:'▲ ジャンプ', slide:'▼ スライディング (長押し)',
     tip:'PC:スペースまたは↑でジャンプ(長押しでより高く)、↓でスライディング ・ スマホ:画面をタップでジャンプ(長押しでより高く)',
     press:'スペース / タップで開始', over:'ゲームオーバー', retry:'スペース / タップでリトライ',
@@ -37,6 +40,7 @@ const DICT={
     ig:'Instagram', fb:'Facebook', rd:'Reddit', dc:'Discord'
   },
   'zh-CN':{
+    dlgTitle:'佩吉还饿着呢! 🐧', dlgBody:'佩吉这一局吃了{f}条鱼,但它还想吃更多。请到{d}帮帮它,将在新标签页中打开。', dlgGo:'前往 {d}', dlgNo:'以后再说', mute:'静音', unmute:'开启声音', shareScore:'佩吉吃了{f}条鱼,跑出了{s}分!你能超过它吗? 🐧', shareIdle:"和佩吉一起奔跑吧,peggy's journey! 🐧",
     jump:'▲ 跳跃', slide:'▼ 滑行(按住)',
     tip:'电脑:空格或↑跳跃(按住越久跳得越高),↓滑行 · 手机:点击屏幕跳跃(按住越久跳得越高)',
     press:'按空格 / 点击开始', over:'游戏结束', retry:'按空格 / 点击重试',
@@ -46,6 +50,7 @@ const DICT={
     ig:'Instagram', fb:'Facebook', rd:'Reddit', dc:'Discord'
   },
   'zh-TW':{
+    dlgTitle:'佩吉還餓著呢! 🐧', dlgBody:'佩吉這一局吃了{f}條魚,但牠還想吃更多。請到{d}幫幫牠,將在新分頁中開啟。', dlgGo:'前往 {d}', dlgNo:'下次再說', mute:'靜音', unmute:'開啟聲音', shareScore:'佩吉吃了{f}條魚,跑出了{s}分!你能超越牠嗎? 🐧', shareIdle:"和佩吉一起奔跑吧,peggy's journey! 🐧",
     jump:'▲ 跳躍', slide:'▼ 滑行(按住)',
     tip:'電腦:空白鍵或↑跳躍(按住越久跳得越高),↓滑行 · 手機:點擊螢幕跳躍(按住越久跳得越高)',
     press:'按空白鍵 / 點擊開始', over:'遊戲結束', retry:'按空白鍵 / 點擊重試',
@@ -55,6 +60,7 @@ const DICT={
     ig:'Instagram', fb:'Facebook', rd:'Reddit', dc:'Discord'
   },
   es:{
+    dlgTitle:'¡Peggy todavía tiene hambre! 🐧', dlgBody:'Peggy se comió {f} pescados en esta partida, pero quiere más. Ayúdala en {d}. Se abrirá en una pestaña nueva.', dlgGo:'Ir a {d}', dlgNo:'Ahora no', mute:'Silenciar', unmute:'Activar sonido', shareScore:'¡Peggy se comió {f} pescados y corrió {s} puntos! ¿Puedes superarla? 🐧', shareIdle:"¡Corre con Peggy en peggy's journey! 🐧",
     jump:'▲ Saltar', slide:'▼ Deslizar (mantener)',
     tip:'PC: Espacio o ↑ para saltar (mantén para saltar más alto), ↓ para deslizar · Móvil: toca para saltar (mantén para más altura)',
     press:'PULSA ESPACIO / TOCA', over:'FIN DEL JUEGO', retry:'ESPACIO / TOCA: REINTENTAR',
@@ -64,6 +70,7 @@ const DICT={
     ig:'Instagram', fb:'Facebook', rd:'Reddit', dc:'Discord'
   },
   fr:{
+    dlgTitle:'Peggy a encore faim ! 🐧', dlgBody:"Peggy a mangé {f} poissons cette partie, mais elle en veut encore. Aide-la sur {d}. Le site s'ouvre dans un nouvel onglet.", dlgGo:'Aller sur {d}', dlgNo:'Plus tard', mute:'Couper le son', unmute:'Activer le son', shareScore:'Peggy a mangé {f} poissons et couru {s} points ! Peux-tu la battre ? 🐧', shareIdle:"Cours avec Peggy dans peggy's journey ! 🐧",
     jump:'▲ Sauter', slide:'▼ Glisser (maintenir)',
     tip:"PC : Espace ou ↑ pour sauter (maintenez pour sauter plus haut), ↓ pour glisser · Mobile : touchez pour sauter (maintenez pour plus de hauteur)",
     press:'ESPACE / TOUCHEZ', over:'PARTIE TERMINÉE', retry:'ESPACE / TOUCHEZ : REJOUER',
@@ -73,6 +80,7 @@ const DICT={
     ig:'Instagram', fb:'Facebook', rd:'Reddit', dc:'Discord'
   },
   de:{
+    dlgTitle:'Peggy hat noch Hunger! 🐧', dlgBody:'Peggy hat in dieser Runde {f} Fische gefressen, will aber mehr. Hilf ihr auf {d}. Die Seite öffnet sich in einem neuen Tab.', dlgGo:'Zu {d}', dlgNo:'Jetzt nicht', mute:'Ton aus', unmute:'Ton an', shareScore:'Peggy hat {f} Fische gefressen und {s} Punkte erreicht! Schaffst du mehr? 🐧', shareIdle:"Lauf mit Peggy in peggy's journey! 🐧",
     jump:'▲ Springen', slide:'▼ Rutschen (halten)',
     tip:'PC: Leertaste oder ↑ zum Springen (länger halten = höher), ↓ zum Rutschen · Handy: Tippen zum Springen (länger halten = höher)',
     press:'LEERTASTE / TIPPEN', over:'SPIEL VORBEI', retry:'LEERTASTE / TIPPEN: NOCHMAL',
@@ -82,6 +90,7 @@ const DICT={
     ig:'Instagram', fb:'Facebook', rd:'Reddit', dc:'Discord'
   },
   pt:{
+    dlgTitle:'A Peggy ainda está com fome! 🐧', dlgBody:'A Peggy comeu {f} peixes nesta partida, mas quer mais. Ajude-a em {d}. Abre em uma nova aba.', dlgGo:'Ir para {d}', dlgNo:'Agora não', mute:'Silenciar', unmute:'Ativar som', shareScore:'A Peggy comeu {f} peixes e correu {s} pontos! Você consegue superá-la? 🐧', shareIdle:"Corra com a Peggy em peggy's journey! 🐧",
     jump:'▲ Pular', slide:'▼ Deslizar (segurar)',
     tip:'PC: Espaço ou ↑ para pular (segure para pular mais alto), ↓ para deslizar · Celular: toque para pular (segure para mais altura)',
     press:'ESPAÇO / TOQUE', over:'FIM DE JOGO', retry:'ESPAÇO / TOQUE: DE NOVO',
@@ -91,6 +100,7 @@ const DICT={
     ig:'Instagram', fb:'Facebook', rd:'Reddit', dc:'Discord'
   },
   ru:{
+    dlgTitle:'Пегги всё ещё голодна! 🐧', dlgBody:'В этом забеге Пегги съела рыбок: {f}, но хочет ещё. Помогите ей на {d}. Сайт откроется в новой вкладке.', dlgGo:'Перейти на {d}', dlgNo:'Не сейчас', mute:'Выключить звук', unmute:'Включить звук', shareScore:'Пегги съела рыбок: {f} и пробежала {s} очков! Сможете больше? 🐧', shareIdle:"Бегите с Пегги в peggy's journey! 🐧",
     jump:'▲ Прыжок', slide:'▼ Скольжение (удерживать)',
     tip:'ПК: пробел или ↑ — прыжок (дольше держите — выше), ↓ — скольжение · Телефон: касание — прыжок (дольше — выше)',
     press:'ПРОБЕЛ / КАСАНИЕ', over:'ИГРА ОКОНЧЕНА', retry:'ПРОБЕЛ / КАСАНИЕ: ЗАНОВО',
@@ -119,9 +129,12 @@ const detect=()=>{
 };
 
 const lang=detect();
-const t=(key,n)=>{
+// t('copied', '레딧') → {n} 자리에 값을 넣음 / t('dlgBody', {f:3, d:'site.com'}) → {f}, {d} 자리에 값을 넣음
+const t=(key,v)=>{
   const s=(DICT[lang][key]!==undefined?DICT[lang][key]:DICT.en[key])||'';
-  return n===undefined?s:s.replace('{n}',n);
+  if(v===undefined)return s;
+  const o=typeof v==='object'?v:{n:v};
+  return s.replace(/\{(\w+)\}/g,(m,k)=>o[k]!==undefined?o[k]:m);
 };
 
 // HTML에 적용: data-i18n(글자), data-i18n-aria(스크린리더 이름), 공유 버튼

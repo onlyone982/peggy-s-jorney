@@ -15,6 +15,9 @@ const CFG={
   jumpV:4.9, gravity:.33,                    // 점프 힘 / 중력 (높이는 그대로 두고 체공 시간만 약 10% 늘린 값)
   jumpCut:1.2, minJumpFrames:5,              // 점프 버튼을 일찍 떼면 낮은 점프: 떼면(최소 minJumpFrames 프레임 뒤) 올라가는 힘을 jumpCut까지 줄임
                                              // jumpCut이 작을수록 짧은 점프가 낮아지고, minJumpFrames가 클수록 짧은 점프도 높아짐 (60프레임 = 1초)
+  adEvery:3,                                 // 게임오버 몇 판마다 광고 버튼을 보여줄지 (3 = 3판, 6판, 9판...)
+  adUrl:'https://onedollardrive.com/?utm_source=peggy&utm_medium=game&utm_campaign=gameover',  // 이동할 주소 (UTM은 사이트 방문 통계에서 게임 유입을 구분하는 표시)
+  adDomain:'onedollardrive.com',             // 이동 안내 창에 보여줄 도메인 이름
   shareUrl:'',                               // 공유 버튼이 복사할 주소. 비워두면 지금 열려 있는 페이지 주소를 씀
   cloudSpeed:.9,                             // 구름 속도 (배경보다 훨씬 느리게)
   fishEvery:3                                // 생선이 나오는 간격 (화면 몇 개 지날 때마다, 실제로는 +0~1)
@@ -77,7 +80,21 @@ try{
     Object.keys(SFX).forEach(k=>getBuf(SFX[k]).then(b=>ac.decodeAudioData(b,d=>{bufs[k]=d},()=>{})).catch(()=>{}));
   }
 }catch(e){ac=null}
+const DEBUG=location.hash==='#debug';
+let muted=false;try{muted=localStorage.getItem('peggyMuted')==='1'}catch(e){}
+// 통계용 이벤트: Google Analytics(gtag)가 페이지에 있으면 자동으로 보내고, 없어도 'peggy:event' 이벤트로 받아볼 수 있습니다.
+// 이벤트: game_start, game_over(score, fish, games), share(platform), ad_shown, ad_open, ad_go, ad_no, mute
+const EVT=[];
+const track=(name,p)=>{
+  try{
+    const d=Object.assign({name},p||{});
+    if(DEBUG)EVT.push(d);
+    window.dispatchEvent(new CustomEvent('peggy:event',{detail:d}));
+    if(typeof window.gtag==='function')window.gtag('event',name,p||{});
+  }catch(e){}
+};
 const play=k=>{
+  if(muted)return;
   try{
     if(ac&&ac.state==='suspended')ac.resume();
     if(bufs[k]){const s=ac.createBufferSource();s.buffer=bufs[k];s.connect(mg);s.start();return}
@@ -89,8 +106,8 @@ const play=k=>{
 const cv=document.getElementById('g'),cx=cv.getContext('2d');
 cv.width=CW;cv.height=CH;cx.imageSmoothingEnabled=false;
 let night=false,nt=0,cutQ=false;                         // night: 목표 / nt: 현재 밤 정도(0=낮, 1=밤, 부드럽게 변함)
-let st='idle',obs=[],sp=CFG.startSpeed,dist=0,py=0,vy=0,duck=false,dn=false,gap=120,wait=70,fc=0,hs=0,overT=0,off=0,jt=0,lh=0,bl=0,fsh=[],fn=0,fd=0,fnx=W*CFG.fishEvery,god=false;
-try{hs=+localStorage.getItem('penguinHi')||0}catch(e){}
+let st='idle',obs=[],sp=CFG.startSpeed,dist=0,py=0,vy=0,duck=false,dn=false,gap=120,wait=70,fc=0,hs=0,overT=0,off=0,jt=0,lh=0,bl=0,fsh=[],fn=0,fd=0,fnx=W*CFG.fishEvery,god=false,lastScore=0,lastFish=0,games=0;
+try{hs=+localStorage.getItem('penguinHi')||0;games=+localStorage.getItem('penguinGames')||0}catch(e){}
 const fl=Array.from({length:40},()=>({x:R()*W,y:R()*G,v:R()+.3}));            // 밤에 내리는 눈
 const stars=Array.from({length:40},()=>[R()*CW|0,R()*220|0,R()<.3?6:3]);      // 밤하늘 별
 const cl=Array.from({length:CFG.clouds},(_,i)=>({i:CL[R()*3|0],x:CW*(.15+.4*i)+R()*200,y:10+R()*110,v:.6+R()*.6,d:0}));
@@ -118,7 +135,11 @@ function spawn(){
 }
 function die(){
   if(god)return;
-  st='over';overT=performance.now();showAd(true);bl=0;play('over');
+  st='over';overT=performance.now();bl=0;play('over');
+  lastScore=dist|0;lastFish=fn;games++;
+  try{localStorage.setItem('penguinGames',games)}catch(e){}
+  track('game_over',{score:lastScore,fish:lastFish,games});
+  if(games%CFG.adEvery===0)showAd(true);                    // 몇 판마다 한 번만 광고 버튼 표시
   if((dist|0)>hs){hs=dist|0;try{localStorage.setItem('penguinHi',hs)}catch(e){}}
 }
 
@@ -207,14 +228,24 @@ function draw(){
 
 /* ================= 입력 ================= */
 const $=id=>document.getElementById(id);
-const AD_URL='https://onedollardrive.com',ad=$('ad');
-ad.href=AD_URL;ad.target='_blank';
-const showAd=v=>{if(v)ad.textContent=I18N.t('feed');ad.hidden=!v};
-ad.addEventListener('click',()=>play('click'));
+const ad=$('ad'),dlg=$('dlg'),dlgGo=$('dlgGo');
+const showAd=v=>{if(v){ad.textContent=I18N.t('feed');track('ad_shown',{games})}ad.hidden=!v};
+// 광고 버튼 → 이동 안내 창(도메인과 새 탭으로 열린다는 알림) → 확인하면 이동
+ad.addEventListener('click',()=>{
+  play('click');track('ad_open',{games});
+  $('dlgBody').textContent=I18N.t('dlgBody',{f:lastFish,d:CFG.adDomain});
+  dlgGo.textContent=I18N.t('dlgGo',{d:CFG.adDomain});dlgGo.href=CFG.adUrl;
+  if(dlg.showModal)dlg.showModal();else dlg.setAttribute('open','');
+});
+const closeDlg=()=>{if(dlg.close)dlg.close();else dlg.removeAttribute('open')};
+dlgGo.addEventListener('click',()=>{play('click');track('ad_go',{games});setTimeout(closeDlg,0)});
+$('dlgNo').addEventListener('click',()=>{play('click');track('ad_no',{games});closeDlg()});
+dlg.addEventListener('click',e=>{if(e.target===dlg)closeDlg()});          // 바깥을 누르면 닫힘
 const jump=()=>{
   let sd=0;
-  if(st==='over'){if(performance.now()-overT<400)return;reset();st='run';sd=1}
-  else if(st==='idle'){reset();st='run';sd=1}
+  if(dlg.open)return;
+  if(st==='over'){if(performance.now()-overT<400)return;reset();st='run';sd=1;track('game_start',{games})}
+  else if(st==='idle'){reset();st='run';sd=1;track('game_start',{games})}
   if(py===0&&vy===0){vy=CFG.jumpV;jt=0;cutQ=false;play(sd?'click':'jump')}
 };
 // 점프 버튼을 누르고 있는 시간에 따라 높이가 달라집니다.
@@ -222,6 +253,7 @@ const jump=()=>{
 const releaseJump=()=>{if(py>0||vy>0)cutQ=true};   // 실제로 줄이는 것은 upd() 안에서 최소 시간이 지난 뒤
 const JK=['Space','ArrowUp','KeyW'];
 addEventListener('keydown',e=>{
+  if(dlg.open)return;                       // 안내 창이 열려 있으면 게임 입력은 무시
   if(JK.includes(e.code)){e.preventDefault();if(!e.repeat)jump()}
   if(['ArrowDown','KeyS'].includes(e.code)){e.preventDefault();dn=true}
 });
@@ -242,9 +274,21 @@ const copyText=async s=>{
 };
 document.querySelectorAll('.share button').forEach(b=>b.addEventListener('click',async()=>{
   const url=CFG.shareUrl||location.href.split('#')[0];
-  play('click');
-  say(await copyText(url)?I18N.t('copied',b.dataset.name):I18N.t('failed'));
+  // 한 판이라도 했으면 점수가 담긴 문구를, 아니면 초대 문구를 링크와 함께 복사
+  const text=lastScore>0?I18N.t('shareScore',{f:lastFish,s:lastScore}):I18N.t('shareIdle');
+  play('click');track('share',{platform:b.dataset.key});
+  say(await copyText(text+'\n'+url)?I18N.t('copied',b.dataset.name):I18N.t('failed'));
 }));
+
+/* ================= 소리 끄기 (우측 상단) ================= */
+const mb=$('mute');
+const paintMute=()=>{mb.classList.toggle('off',muted);mb.setAttribute('aria-pressed',String(muted));mb.title=I18N.t(muted?'unmute':'mute')};
+mb.setAttribute('aria-label',I18N.t('mute'));
+mb.addEventListener('click',()=>{
+  muted=!muted;try{localStorage.setItem('peggyMuted',muted?'1':'0')}catch(e){}
+  paintMute();track('mute',{muted});if(!muted)play('click');
+});
+paintMute();
 
 /* ================= 테스트용 도구 (주소 끝에 #debug 를 붙였을 때만 켜짐) ================= */
 if(location.hash==='#debug'){
@@ -252,7 +296,8 @@ if(location.hash==='#debug'){
     state:()=>({st,dist:dist|0,py,duck,nt:+nt.toFixed(3),fn,obs:obs.map(o=>({k:o.k,lv:o.lv,x:+o.x.toFixed(1),y:+o.y.toFixed(1),w:+o.w.toFixed(1),h:+o.h.toFixed(1)})),clouds:cl.map(c=>({x:c.x|0,d:c.d}))}),
     setDist:n=>{dist=n;lh=n/100|0},
     put:(k,lv,x)=>{wait=1e9;obs=[];if(k==='g'){const gw=GW*CFG.gullScale/K,gh=GH*CFG.gullScale/K;obs.push({k,lv,x,y:GULL_BOTTOM[lv]-gh,w:gw,h:gh})}else if(k==='s')obs.push({k,x,y:G-SNH,w:SNW,h:SNH});else obs.push({k:'l',x,y:G-LH[0],w:LW[1],h:LH[0]})},
-    god:v=>{god=v}
+    god:v=>{god=v},
+    events:()=>EVT, setGames:n=>{games=n}, muted:()=>muted
   };
 }
 
