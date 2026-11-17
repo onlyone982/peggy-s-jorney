@@ -12,7 +12,9 @@ const CFG={
   gullScale:.82,                             // 갈매기 크기 (1 = 원본 이미지 기준)
   clouds:3,                                  // 화면에 떠 있는 구름 수
   cloudDelay:[160,480],                      // 구름이 화면 밖으로 나간 뒤 다시 나오기까지 대기(프레임). 작을수록 자주 나옴
-  jumpV:4.9, gravity:.33,                    // 점프 힘 / 중력. 높이는 그대로 두고 체공 시간만 약 10% 늘린 값
+  jumpV:4.9, gravity:.33,                    // 점프 힘 / 중력 (높이는 그대로 두고 체공 시간만 약 10% 늘린 값)
+  jumpCut:1.2, minJumpFrames:5,              // 점프 버튼을 일찍 떼면 낮은 점프: 떼면(최소 minJumpFrames 프레임 뒤) 올라가는 힘을 jumpCut까지 줄임
+                                             // jumpCut이 작을수록 짧은 점프가 낮아지고, minJumpFrames가 클수록 짧은 점프도 높아짐 (60프레임 = 1초)
   shareUrl:'',                               // 공유 버튼이 복사할 주소. 비워두면 지금 열려 있는 페이지 주소를 씀
   cloudSpeed:.9,                             // 구름 속도 (배경보다 훨씬 느리게)
   fishEvery:3                                // 생선이 나오는 간격 (화면 몇 개 지날 때마다, 실제로는 +0~1)
@@ -86,7 +88,7 @@ const play=k=>{
 /* ================= 상태 ================= */
 const cv=document.getElementById('g'),cx=cv.getContext('2d');
 cv.width=CW;cv.height=CH;cx.imageSmoothingEnabled=false;
-let night=false,nt=0;                         // night: 목표 / nt: 현재 밤 정도(0=낮, 1=밤, 부드럽게 변함)
+let night=false,nt=0,cutQ=false;                         // night: 목표 / nt: 현재 밤 정도(0=낮, 1=밤, 부드럽게 변함)
 let st='idle',obs=[],sp=CFG.startSpeed,dist=0,py=0,vy=0,duck=false,dn=false,gap=120,wait=70,fc=0,hs=0,overT=0,off=0,jt=0,lh=0,bl=0,fsh=[],fn=0,fd=0,fnx=W*CFG.fishEvery,god=false;
 try{hs=+localStorage.getItem('penguinHi')||0}catch(e){}
 const fl=Array.from({length:40},()=>({x:R()*W,y:R()*G,v:R()+.3}));            // 밤에 내리는 눈
@@ -137,7 +139,7 @@ function upd(){
   dist+=sp*.06;off+=sp;fd+=sp;night=(dist/CFG.nightEvery|0)%2===1;
   const hh=dist/100|0;if(hh>lh){lh=hh;bl=48;play('score')}if(bl>0)bl--;   // 100점마다 점수 깜빡임 + 소리
   duck=dn&&py===0;
-  if(py>0||vy>0){jt++;vy-=CFG.gravity*(dn?2.2:1);py+=vy;if(py<=0){py=0;vy=0;jt=0}}
+  if(py>0||vy>0){jt++;if(cutQ&&jt>=CFG.minJumpFrames){if(vy>CFG.jumpCut)vy=CFG.jumpCut;cutQ=false}vy-=CFG.gravity*(dn?2.2:1);py+=vy;if(py<=0){py=0;vy=0;jt=0}}
   obs.forEach(o=>o.x-=sp+(o.k==='g'?.8:0));
   fsh.forEach(f=>f.x-=sp);fsh=fsh.filter(f=>f.x>-12);
   obs=obs.filter(o=>o.x>-30);
@@ -158,7 +160,8 @@ const z=n=>String(n|0).padStart(5,'0');
 const mix=(a,b,t)=>Math.round(a+(b-a)*t);
 function drawPeng(){
   const gy=G*K,x=24*K,air=py>0||vy>0;
-  const i=air?2+Math.min(8,jt/(2*CFG.jumpV/CFG.gravity)*9|0):st==='run'?(fc>>3&1):0;     // 달리기: 1·2번 / 점프: 3~11번
+  const tot=jt+(vy+Math.sqrt(vy*vy+2*CFG.gravity*py))/CFG.gravity;           // 이번 점프의 전체 체공 시간 추정
+  const i=air?2+Math.min(8,jt/tot*9|0):st==='run'?(fc>>3&1):0;     // 달리기: 1·2번 / 점프: 3~11번
   cx.save();cx.setTransform(1,0,0,1,0,0);
   if(air){cx.fillStyle='rgba(0,0,0,.28)';cx.beginPath();cx.ellipse(x+50,gy+3,Math.max(16,46-py*K*.12),6,0,0,7);cx.fill()}
   if(st==='over'){if(ok(DEI))cx.drawImage(DEI,x,gy-py*K-DB)}
@@ -194,33 +197,39 @@ function draw(){
   if(ok(FSI))fsh.forEach(f=>cx.drawImage(FSI,f.x,f.y,FW,FH));
   drawPeng();
   // 글자색도 낮(진한 파랑)에서 밤(밝은 색)으로 부드럽게
-  cx.font='bold 10px monospace';cx.fillStyle='rgb('+mix(29,255,sm)+','+mix(43,241,sm)+','+mix(83,232,sm)+')';
+  cx.font='bold 10px monospace, sans-serif';cx.fillStyle='rgb('+mix(29,255,sm)+','+mix(43,241,sm)+','+mix(83,232,sm)+')';
   cx.textAlign='right';if(bl<=0||((bl/8|0)&1))cx.fillText(z(dist),W-6,14);cx.fillText('HI '+z(hs),W-44,14);
   if(st!=='idle'){if(ok(FSI))cx.drawImage(FSI,6,6,FW,FH);cx.textAlign='left';cx.fillText('x'+fn,18,14)}
   cx.textAlign='center';
-  if(st==='idle'){cx.fillText("PEGGY'S JOURNEY",W/2,24);cx.fillText('PRESS SPACE / TAP',W/2,36)}
-  if(st==='over'){cx.fillText('GAME OVER',W/2,24);cx.fillText('SPACE / TAP TO RETRY',W/2,36)}
+  if(st==='idle'){cx.fillText("PEGGY'S JOURNEY",W/2,24);cx.fillText(I18N.t('press'),W/2,36)}
+  if(st==='over'){cx.fillText(I18N.t('over'),W/2,24);cx.fillText(I18N.t('retry'),W/2,36)}
 }
 
 /* ================= 입력 ================= */
 const $=id=>document.getElementById(id);
-const AD_URL='https://onedollardrive.com',AD_TXT=['Feed peggy more fish 🐟'],ad=$('ad');
+const AD_URL='https://onedollardrive.com',ad=$('ad');
 ad.href=AD_URL;ad.target='_blank';
-const showAd=v=>{if(v)ad.textContent=AD_TXT[R()*AD_TXT.length|0];ad.hidden=!v};
+const showAd=v=>{if(v)ad.textContent=I18N.t('feed');ad.hidden=!v};
 ad.addEventListener('click',()=>play('click'));
 const jump=()=>{
   let sd=0;
   if(st==='over'){if(performance.now()-overT<400)return;reset();st='run';sd=1}
   else if(st==='idle'){reset();st='run';sd=1}
-  if(py===0&&vy===0){vy=CFG.jumpV;jt=0;play(sd?'click':'jump')}
+  if(py===0&&vy===0){vy=CFG.jumpV;jt=0;cutQ=false;play(sd?'click':'jump')}
 };
+// 점프 버튼을 누르고 있는 시간에 따라 높이가 달라집니다.
+// 짧게 누르면 낮은 점프(약 60%), 끝까지 누르고 있으면 가장 높은 점프이고, 그 사이는 누른 시간만큼 이어서 높아집니다.
+const releaseJump=()=>{if(py>0||vy>0)cutQ=true};   // 실제로 줄이는 것은 upd() 안에서 최소 시간이 지난 뒤
+const JK=['Space','ArrowUp','KeyW'];
 addEventListener('keydown',e=>{
-  if(['Space','ArrowUp','KeyW'].includes(e.code)){e.preventDefault();jump()}
+  if(JK.includes(e.code)){e.preventDefault();if(!e.repeat)jump()}
   if(['ArrowDown','KeyS'].includes(e.code)){e.preventDefault();dn=true}
 });
-addEventListener('keyup',e=>{if(['ArrowDown','KeyS'].includes(e.code))dn=false});
-cv.addEventListener('pointerdown',e=>{e.preventDefault();jump()});
-$('bj').addEventListener('pointerdown',e=>{e.preventDefault();jump()});
+addEventListener('keyup',e=>{if(['ArrowDown','KeyS'].includes(e.code))dn=false;if(JK.includes(e.code))releaseJump()});
+[cv,$('bj')].forEach(el=>{
+  el.addEventListener('pointerdown',e=>{e.preventDefault();jump()});
+  ['pointerup','pointerleave','pointercancel'].forEach(t=>el.addEventListener(t,releaseJump));
+});
 $('bd').addEventListener('pointerdown',e=>{e.preventDefault();dn=true});
 ['pointerup','pointerleave','pointercancel'].forEach(t=>$('bd').addEventListener(t,()=>{dn=false}));
 
@@ -234,7 +243,7 @@ const copyText=async s=>{
 document.querySelectorAll('.share button').forEach(b=>b.addEventListener('click',async()=>{
   const url=CFG.shareUrl||location.href.split('#')[0];
   play('click');
-  say(await copyText(url)?'링크를 복사했어요. '+b.dataset.name+'에 붙여넣어 공유하세요':'복사에 실패했어요. 주소창의 링크를 직접 복사해 주세요');
+  say(await copyText(url)?I18N.t('copied',b.dataset.name):I18N.t('failed'));
 }));
 
 /* ================= 테스트용 도구 (주소 끝에 #debug 를 붙였을 때만 켜짐) ================= */
