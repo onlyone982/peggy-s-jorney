@@ -6,7 +6,9 @@ const CFG={
   startSpeed:2.2, maxSpeed:5.2, accel:400,   // 속도: 시작 / 최고 / 클수록 천천히 빨라짐
   nightEvery:500,                            // 점수 몇 점마다 낮↔밤이 바뀌는지
   fadeFrames:120,                            // 낮↔밤 전환에 걸리는 프레임 수 (60프레임 = 1초)
-  gullFrom:150,                              // 갈매기가 나오기 시작하는 점수
+  moonX:1190, moonY:42, moonSize:65,         // 달의 위치(왼쪽 위 모서리)와 크기, 캔버스 px 기준 (캔버스는 1920x480)
+  lionFrom:500,                              // 바다표범이 나오기 시작하는 점수
+  gullFrom:150,                            // 갈매기가 나오기 시작하는 점수
   gullScale:.82,                             // 갈매기 크기 (1 = 원본 이미지 기준)
   clouds:3,                                  // 화면에 떠 있는 구름 수
   cloudDelay:[240,720],                      // 구름이 화면 밖으로 나간 뒤 다시 나오기까지 대기(프레임)
@@ -38,9 +40,11 @@ const smoothBg=(i)=>{
   try{
     const im=BG[i],w=im.naturalWidth,h=im.naturalHeight,c=document.createElement('canvas'),x=c.getContext('2d');
     if(!('filter' in x))return;
-    c.width=w*3;c.height=h;x.filter='blur(1.1px)';
-    for(let k=0;k<3;k++)x.drawImage(im,k*w,0);          // 좌우로 이어 붙여서 이음새가 어두워지지 않게 함
-    const o=document.createElement('canvas');o.width=w;o.height=h;o.getContext('2d').drawImage(c,w,0,w,h,0,0,w,h);
+    c.width=w*3;c.height=h;
+    for(let k=0;k<3;k++)x.drawImage(im,k*w,0);          // 먼저 좌우로 이어 붙이고
+    const c2=document.createElement('canvas'),x2=c2.getContext('2d');c2.width=w*3;c2.height=h;
+    x2.filter='blur(1.1px)';x2.drawImage(c,0,0);        // 이어 붙인 전체를 한 번에 흐리게 해야 이음새에 흰 줄이 안 생김
+    const o=document.createElement('canvas');o.width=w;o.height=h;o.getContext('2d').drawImage(c2,w,0,w,h,0,0,w,h);
     BGD[i]=o;
   }catch(e){}
 };
@@ -103,7 +107,7 @@ function spawnGull(){
 function spawn(){
   const r=R();
   if(dist>CFG.gullFrom&&r>.7)spawnGull();
-  else if(r<.45){const n=R()<.3?2:1;for(let i=0;i<n;i++)obs.push({k:'s',x:W+i*(SNW+1),y:G-SNH,w:SNW,h:SNH})}
+  else if(r<.45||dist<CFG.lionFrom){const n=R()<.3?2:1;for(let i=0;i<n;i++)obs.push({k:'s',x:W+i*(SNW+1),y:G-SNH,w:SNW,h:SNH})}
   else obs.push({k:'l',x:W,y:G-LH[0],w:LW[1],h:LH[0]});   // 바다표범: 큰 쪽 크기를 기준으로 충돌 계산
   gap=sp*30+40+R()*80;
   if(fd>=fnx){const hh=[3,16,28][R()*3|0],n=3;for(let i=0;i<n;i++)fsh.push({x:W+gap*.5+(i-n/2)*FW*1.6,y:G-hh-FH});fd=0;fnx=nextFish()}
@@ -170,8 +174,8 @@ function draw(){
     cx.globalAlpha=sm;
     if(ok(BG[1])){cx.drawImage(BGD[1],x0,-600);cx.drawImage(BGD[1],x0+CW,-600)}
     cx.fillStyle='#fff1e8';stars.forEach(s=>cx.fillRect(s[0],s[1],s[2],s[2]));
-    // 달: 우측 상단 멀리 떠 있는 느낌으로 작게, 밤이 될수록 위로 떠오름
-    if(ok(MOON))cx.drawImage(MOON,CW-215,100+(1-sm)*70,130,130);
+    // 달: 점수 글자 왼쪽 위에 작게 떠 있고, 밤이 될수록 위로 떠오름
+    if(ok(MOON))cx.drawImage(MOON,CFG.moonX,CFG.moonY+(1-sm)*50,CFG.moonSize,CFG.moonSize);
   }
   if(sm<.999){
     cx.globalAlpha=1-sm;
