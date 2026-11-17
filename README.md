@@ -44,7 +44,9 @@ assets/sfx/       효과음
 - `index.html` 맨 위의 `og:`·`twitter:` 태그가 디스코드·레딧·페이스북에서 보이는 미리보기입니다. 이미지는 `assets/og.png`입니다.
   실제 주소가 정해지면 `og:image`를 `https://...`로 시작하는 전체 주소로 바꾸고 `og:url`을 추가하세요. 상대 경로는 일부 사이트에서 이미지가 안 보입니다.
 - 게임은 `game_start`, `game_over`(점수·생선·누적 판 수), `share`(플랫폼), `ad_shown`, `ad_open`, `ad_go`, `ad_no`, `mute` 이벤트를 보냅니다.
-  페이지에 Google Analytics(`gtag`)가 있으면 자동으로 전송되고, 직접 받으려면 `window.addEventListener('peggy:event', e => console.log(e.detail))`처럼 쓰면 됩니다. 아직 통계 서비스는 연결하지 않았습니다.
+  페이지에 Google Analytics(`gtag`)가 있으면 자동으로 전송되고, 직접 받으려면 `window.addEventListener('peggy:event', e => console.log(e.detail))`처럼 쓰면 됩니다.
+- **Google Analytics(Firebase) 켜기**: `js/analytics.js` 맨 위의 `GA_ID`에 측정 ID(`G-XXXXXXXXXX`)를 넣으면 끝입니다. 비워 두면 아무것도 전송하지 않습니다.
+  - 유럽(EEA)·영국·스위스는 동의 전까지 분석 쿠키를 쓰지 않는 기본값, 그 밖의 지역은 분석만 허용, 광고용 저장과 광고 개인화는 모든 지역에서 끕니다. 브라우저의 '추적 안 함'(DNT)도 따릅니다.
 - 광고 버튼 주소의 `utm_source=peggy` 표시 덕분에 onedollardrive.com 쪽 통계에서 게임에서 온 방문자를 따로 볼 수 있습니다.
 
 ## 테스트용 도구
