@@ -18,7 +18,7 @@ const CFG={
   adEvery:3,                                 // 게임오버 몇 판마다 광고 버튼을 보여줄지 (3 = 3판, 6판, 9판...)
   adUrl:'https://onedollardrive.com/?utm_source=peggy&utm_medium=game&utm_campaign=gameover',  // 이동할 주소 (UTM은 사이트 방문 통계에서 게임 유입을 구분하는 표시)
   adDomain:'onedollardrive.com',             // 이동 안내 창에 보여줄 도메인 이름
-  shareUrl:'',                               // 공유 버튼이 복사할 주소. 비워두면 지금 열려 있는 페이지 주소를 씀
+  shareUrl:'https://onlyone982.github.io/peggy-s-jorney/',                               // 공유 버튼이 복사할 주소. 비워두면 지금 열려 있는 페이지 주소를 씀
   cloudSpeed:.9,                             // 구름 속도 (배경보다 훨씬 느리게)
   fishEvery:3                                // 생선이 나오는 간격 (화면 몇 개 지날 때마다, 실제로는 +0~1)
 };

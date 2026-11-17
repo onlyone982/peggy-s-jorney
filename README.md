@@ -68,3 +68,9 @@ __dbg.events()         // 지금까지 보낸 통계 이벤트 보기
 - 점프: `penguin_03`부터 `penguin_11`까지 순서대로 재생
 - 바다표범: `sealion_1`, `sealion_2`를 GIF처럼 번갈아 재생 (좌우 반전한 상태로 저장되어 있음)
 - 갈매기: `gull_1`~`gull_6` 반복 재생
+
+## 웹에 올리기 (GitHub Pages)
+
+1. GitHub 저장소 → Settings → Pages → Source를 **Deploy from a branch**, Branch를 `main` / `(root)`로 정하고 Save
+2. 1~2분 뒤 `https://onlyone982.github.io/peggy-s-jorney/`에서 열립니다.
+3. 주소를 바꾸면 `index.html`의 `og:url`·`og:image`·`twitter:image`와 `js/game.js`의 `CFG.shareUrl`을 같이 바꾸세요.
