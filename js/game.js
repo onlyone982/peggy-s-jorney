@@ -11,7 +11,9 @@ const CFG={
   gullFrom:150,                            // 갈매기가 나오기 시작하는 점수
   gullScale:.82,                             // 갈매기 크기 (1 = 원본 이미지 기준)
   clouds:3,                                  // 화면에 떠 있는 구름 수
-  cloudDelay:[240,720],                      // 구름이 화면 밖으로 나간 뒤 다시 나오기까지 대기(프레임)
+  cloudDelay:[160,480],                      // 구름이 화면 밖으로 나간 뒤 다시 나오기까지 대기(프레임). 작을수록 자주 나옴
+  jumpV:4.9, gravity:.33,                    // 점프 힘 / 중력. 높이는 그대로 두고 체공 시간만 약 10% 늘린 값
+  shareUrl:'',                               // 공유 버튼이 복사할 주소. 비워두면 지금 열려 있는 페이지 주소를 씀
   cloudSpeed:.9,                             // 구름 속도 (배경보다 훨씬 느리게)
   fishEvery:3                                // 생선이 나오는 간격 (화면 몇 개 지날 때마다, 실제로는 +0~1)
 };
@@ -135,7 +137,7 @@ function upd(){
   dist+=sp*.06;off+=sp;fd+=sp;night=(dist/CFG.nightEvery|0)%2===1;
   const hh=dist/100|0;if(hh>lh){lh=hh;bl=48;play('score')}if(bl>0)bl--;   // 100점마다 점수 깜빡임 + 소리
   duck=dn&&py===0;
-  if(py>0||vy>0){jt++;vy-=.4*(dn?2.2:1);py+=vy;if(py<=0){py=0;vy=0;jt=0}}
+  if(py>0||vy>0){jt++;vy-=CFG.gravity*(dn?2.2:1);py+=vy;if(py<=0){py=0;vy=0;jt=0}}
   obs.forEach(o=>o.x-=sp+(o.k==='g'?.8:0));
   fsh.forEach(f=>f.x-=sp);fsh=fsh.filter(f=>f.x>-12);
   obs=obs.filter(o=>o.x>-30);
@@ -156,7 +158,7 @@ const z=n=>String(n|0).padStart(5,'0');
 const mix=(a,b,t)=>Math.round(a+(b-a)*t);
 function drawPeng(){
   const gy=G*K,x=24*K,air=py>0||vy>0;
-  const i=air?2+Math.min(8,jt/3|0):st==='run'?(fc>>3&1):0;     // 달리기: 1·2번 / 점프: 3~11번
+  const i=air?2+Math.min(8,jt/(2*CFG.jumpV/CFG.gravity)*9|0):st==='run'?(fc>>3&1):0;     // 달리기: 1·2번 / 점프: 3~11번
   cx.save();cx.setTransform(1,0,0,1,0,0);
   if(air){cx.fillStyle='rgba(0,0,0,.28)';cx.beginPath();cx.ellipse(x+50,gy+3,Math.max(16,46-py*K*.12),6,0,0,7);cx.fill()}
   if(st==='over'){if(ok(DEI))cx.drawImage(DEI,x,gy-py*K-DB)}
@@ -210,7 +212,7 @@ const jump=()=>{
   let sd=0;
   if(st==='over'){if(performance.now()-overT<400)return;reset();st='run';sd=1}
   else if(st==='idle'){reset();st='run';sd=1}
-  if(py===0&&vy===0){vy=5.4;jt=0;play(sd?'click':'jump')}
+  if(py===0&&vy===0){vy=CFG.jumpV;jt=0;play(sd?'click':'jump')}
 };
 addEventListener('keydown',e=>{
   if(['Space','ArrowUp','KeyW'].includes(e.code)){e.preventDefault();jump()}
@@ -221,6 +223,19 @@ cv.addEventListener('pointerdown',e=>{e.preventDefault();jump()});
 $('bj').addEventListener('pointerdown',e=>{e.preventDefault();jump()});
 $('bd').addEventListener('pointerdown',e=>{e.preventDefault();dn=true});
 ['pointerup','pointerleave','pointercancel'].forEach(t=>$('bd').addEventListener(t,()=>{dn=false}));
+
+/* ================= 공유 버튼 (링크 복사) ================= */
+const toast=$('toast');let toastT=0;
+const say=m=>{toast.textContent=m;toast.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>toast.classList.remove('on'),2200)};
+const copyText=async s=>{
+  try{await navigator.clipboard.writeText(s);return true}catch(e){}
+  try{const t=document.createElement('textarea');t.value=s;t.style.cssText='position:fixed;opacity:0';document.body.appendChild(t);t.select();const r=document.execCommand('copy');t.remove();return r}catch(e){return false}
+};
+document.querySelectorAll('.share button').forEach(b=>b.addEventListener('click',async()=>{
+  const url=CFG.shareUrl||location.href.split('#')[0];
+  play('click');
+  say(await copyText(url)?'링크를 복사했어요. '+b.dataset.name+'에 붙여넣어 공유하세요':'복사에 실패했어요. 주소창의 링크를 직접 복사해 주세요');
+}));
 
 /* ================= 테스트용 도구 (주소 끝에 #debug 를 붙였을 때만 켜짐) ================= */
 if(location.hash==='#debug'){
