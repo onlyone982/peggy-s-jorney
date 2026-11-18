@@ -44,3 +44,6 @@ dialog p{margin:0 0 18px;font-size:15px;line-height:1.55}
 .dlg-actions a{background:#ffec27;color:#1d2b53;border:2px solid #1d2b53}
 .dlg-actions button{background:none;color:var(--fg);border:2px solid var(--fg)}
 .dlg-actions a:focus-visible,.dlg-actions button:focus-visible{outline:3px solid #ffa300;outline-offset:2px}
+/* 오른쪽 아래 구석의 개인정보처리방침 링크 */
+.pv{position:fixed;right:10px;bottom:calc(6px + env(safe-area-inset-bottom,0px));font-size:11px;line-height:1;color:var(--fg);opacity:.55;text-decoration:none;padding:6px 4px}
+.pv:hover,.pv:focus-visible{opacity:1;text-decoration:underline}
