@@ -24,6 +24,9 @@ js/game.js        게임 전체 코드 (맨 위 CFG에서 속도·크기·간격
 js/i18n.js        언어 자동 인식과 번역 문구
 assets/img/       스프라이트와 배경 이미지
 assets/sfx/       효과음
+privacy.html      개인정보처리방침 (스토어 등록에 필요)
+ANDROID.md        안드로이드 앱(Play 스토어) 만드는 방법
+capacitor.config.json, scripts/, store/   앱 설정, 복사 스크립트, 스토어용 이미지
 ```
 
 ## 언어

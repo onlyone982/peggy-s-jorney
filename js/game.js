@@ -16,6 +16,7 @@ const CFG={
   jumpV:4.9, gravity:.33,                    // 점프 힘 / 중력 (높이는 그대로 두고 체공 시간만 약 10% 늘린 값)
   jumpCut:1.2, minJumpFrames:5,              // 점프 버튼을 일찍 떼면 낮은 점프: 떼면(최소 minJumpFrames 프레임 뒤) 올라가는 힘을 jumpCut까지 줄임
                                              // jumpCut이 작을수록 짧은 점프가 낮아지고, minJumpFrames가 클수록 짧은 점프도 높아짐 (60프레임 = 1초)
+  adInApp:false,                             // 스토어 앱(Capacitor) 안에서도 광고 버튼을 보여줄지. 심사 문제를 피하려고 기본은 숨김
   adEvery:3,                                 // 게임오버 몇 판마다 광고 버튼을 보여줄지 (3 = 3판, 6판, 9판...)
   adUrl:'https://onedollardrive.com/?utm_source=peggy&utm_medium=game&utm_campaign=gameover',  // 이동할 주소 (UTM은 사이트 방문 통계에서 게임 유입을 구분하는 표시)
   adDomain:'onedollardrive.com',             // 이동 안내 창에 보여줄 도메인 이름
@@ -262,7 +263,8 @@ function draw(){
 /* ================= 입력 ================= */
 const $=id=>document.getElementById(id);
 const ad=$('ad'),dlg=$('dlg'),dlgGo=$('dlgGo');
-const showAd=v=>{if(v){ad.textContent=I18N.t('feed');track('ad_shown',{games})}ad.hidden=!v};
+const IN_APP=!!(window.Capacitor&&typeof window.Capacitor.isNativePlatform==='function'&&window.Capacitor.isNativePlatform());   // 스토어 앱 안에서 열렸는지
+const showAd=v=>{if(v&&IN_APP&&!CFG.adInApp)return;if(v){ad.textContent=I18N.t('feed');track('ad_shown',{games})}ad.hidden=!v};
 // 광고 버튼 → 이동 안내 창(도메인과 새 탭으로 열린다는 알림) → 확인하면 이동
 ad.addEventListener('click',()=>{
   play('click');track('ad_open',{games});

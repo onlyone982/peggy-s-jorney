@@ -1,0 +1,9 @@
+{
+  "appId": "day.peggy.journey",
+  "appName": "peggy's journey",
+  "webDir": "www",
+  "backgroundColor": "#1d2b53",
+  "android": {
+    "allowMixedContent": false
+  }
+}

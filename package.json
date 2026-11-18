@@ -1,0 +1,11 @@
+{
+  "name": "peggys-journey",
+  "version": "1.0.0",
+  "private": true,
+  "description": "peggy's journey - Android app wrapper (Capacitor). 설치 방법은 ANDROID.md를 보세요.",
+  "scripts": {
+    "build:www": "node scripts/build-www.mjs",
+    "android:sync": "node scripts/build-www.mjs && npx cap sync android",
+    "android:open": "npx cap open android"
+  }
+}
