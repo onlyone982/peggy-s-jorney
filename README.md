@@ -34,6 +34,7 @@ assets/sfx/       효과음
 
 ## 자주 만지는 곳 (`js/game.js`)
 
+- `CFG.scoreRate`: 점수가 오르는 빠르기(.078). 올리면 점수가 빨리 오르고 밤·바다표범 등장도 빨라지므로 `accel`을 같은 비율로 키우면 속도 곡선은 그대로입니다
 - `CFG` 맨 위 설정: 게임 속도, 낮밤 전환 간격과 시간, 갈매기 크기, 구름 개수와 속도, 생선 간격, 점프 힘·중력·짧은 점프 높이
 - `GULL_BOTTOM`: 갈매기 3단계 높이 (바닥 / 서 있는 펭귄 머리 / 하늘)
 - `CFG.adEvery`: 게임오버 몇 판마다 광고 버튼을 보여줄지 (기본 3판). 버튼을 누르면 이동 안내 창이 뜨고, 확인하면 `CFG.adUrl`(UTM 표시 포함)이 새 탭으로 열립니다. 문구는 `js/i18n.js`의 `feed`, `dlg*`
@@ -45,7 +46,7 @@ assets/sfx/       효과음
   실제 주소가 정해지면 `og:image`를 `https://...`로 시작하는 전체 주소로 바꾸고 `og:url`을 추가하세요. 상대 경로는 일부 사이트에서 이미지가 안 보입니다.
 - 게임은 `game_start`, `game_over`(점수·생선·누적 판 수), `share`(플랫폼), `ad_shown`, `ad_open`, `ad_go`, `ad_no`, `mute` 이벤트를 보냅니다.
   페이지에 Google Analytics(`gtag`)가 있으면 자동으로 전송되고, 직접 받으려면 `window.addEventListener('peggy:event', e => console.log(e.detail))`처럼 쓰면 됩니다.
-- **Google Analytics(Firebase) 켜기**: `js/analytics.js` 맨 위의 `GA_ID`에 측정 ID(`G-XXXXXXXXXX`)를 넣으면 끝입니다. 비워 두면 아무것도 전송하지 않습니다.
+- **Google Analytics(Firebase) 켜기**: `js/analytics.js` 맨 위의 `GA_ID`에 측정 ID(`G-XXXXXXXXXX`)를 넣으면 끝입니다. (peggy 웹 앱 ID가 이미 들어 있음) 비워 두면 아무것도 전송하지 않습니다.
   - 유럽(EEA)·영국·스위스는 동의 전까지 분석 쿠키를 쓰지 않는 기본값, 그 밖의 지역은 분석만 허용, 광고용 저장과 광고 개인화는 모든 지역에서 끕니다. 브라우저의 '추적 안 함'(DNT)도 따릅니다.
 - 광고 버튼 주소의 `utm_source=peggy` 표시 덕분에 onedollardrive.com 쪽 통계에서 게임에서 온 방문자를 따로 볼 수 있습니다.
 
@@ -72,5 +73,12 @@ __dbg.events()         // 지금까지 보낸 통계 이벤트 보기
 ## 웹에 올리기 (GitHub Pages)
 
 1. GitHub 저장소 → Settings → Pages → Source를 **Deploy from a branch**, Branch를 `main` / `(root)`로 정하고 Save
-2. 1~2분 뒤 `https://onlyone982.github.io/peggy-s-jorney/`에서 열립니다.
+2. 1~2분 뒤 `https://peggy.day/`에서 열립니다.
 3. 주소를 바꾸면 `index.html`의 `og:url`·`og:image`·`twitter:image`와 `js/game.js`의 `CFG.shareUrl`을 같이 바꾸세요.
+
+### 도메인 연결 (peggy.day, Cloudflare)
+
+저장소 루트의 `CNAME` 파일이 GitHub Pages에 커스텀 도메인을 알려 줍니다.
+1. Cloudflare DNS에 `A` 레코드 4개: 이름 `@`, 값 `185.199.108.153` / `185.199.109.153` / `185.199.110.153` / `185.199.111.153`, 프록시는 **DNS only(회색 구름)**
+2. `CNAME` 레코드: 이름 `www`, 값 `onlyone982.github.io`, 프록시 DNS only
+3. GitHub 저장소 Settings → Pages → Custom domain에 `peggy.day` 입력 → 인증서가 발급되면 **Enforce HTTPS** 체크

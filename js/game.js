@@ -3,7 +3,8 @@
 
 /* ================= 설정: 여기 숫자만 바꿔도 게임 느낌이 바뀝니다 ================= */
 const CFG={
-  startSpeed:2.2, maxSpeed:5.2, accel:400,   // 속도: 시작 / 최고 / 클수록 천천히 빨라짐
+  startSpeed:2.2, maxSpeed:5.2, accel:520,   // 속도: 시작 / 최고 / 클수록 천천히 빨라짐
+  scoreRate:.078,                            // 점수가 오르는 빠르기 (클수록 점수가 빨리 오름. 예전 값 .06). accel은 이 값에 맞춰 같이 키워야 속도 곡선이 그대로
   nightEvery:500,                            // 점수 몇 점마다 낮↔밤이 바뀌는지
   fadeFrames:120,                            // 낮↔밤 전환에 걸리는 프레임 수 (60프레임 = 1초)
   moonX:1190, moonY:42, moonSize:65,         // 달의 위치(왼쪽 위 모서리)와 크기, 캔버스 px 기준 (캔버스는 1920x480)
@@ -18,7 +19,7 @@ const CFG={
   adEvery:3,                                 // 게임오버 몇 판마다 광고 버튼을 보여줄지 (3 = 3판, 6판, 9판...)
   adUrl:'https://onedollardrive.com/?utm_source=peggy&utm_medium=game&utm_campaign=gameover',  // 이동할 주소 (UTM은 사이트 방문 통계에서 게임 유입을 구분하는 표시)
   adDomain:'onedollardrive.com',             // 이동 안내 창에 보여줄 도메인 이름
-  shareUrl:'https://onlyone982.github.io/peggy-s-jorney/',                               // 공유 버튼이 복사할 주소. 비워두면 지금 열려 있는 페이지 주소를 씀
+  shareUrl:'https://peggy.day/',                               // 공유 버튼이 복사할 주소. 비워두면 지금 열려 있는 페이지 주소를 씀
   cloudSpeed:.9,                             // 구름 속도 (배경보다 훨씬 느리게)
   fishEvery:3                                // 생선이 나오는 간격 (화면 몇 개 지날 때마다, 실제로는 +0~1)
 };
@@ -157,7 +158,7 @@ function upd(){
   });
   if(st!=='run')return;
   sp=Math.min(CFG.maxSpeed,CFG.startSpeed+dist/CFG.accel);
-  dist+=sp*.06;off+=sp;fd+=sp;night=(dist/CFG.nightEvery|0)%2===1;
+  dist+=sp*CFG.scoreRate;off+=sp;fd+=sp;night=(dist/CFG.nightEvery|0)%2===1;
   const hh=dist/100|0;if(hh>lh){lh=hh;bl=48;play('score')}if(bl>0)bl--;   // 100점마다 점수 깜빡임 + 소리
   duck=dn&&py===0;
   if(py>0||vy>0){jt++;if(cutQ&&jt>=CFG.minJumpFrames){if(vy>CFG.jumpCut)vy=CFG.jumpCut;cutQ=false}vy-=CFG.gravity*(dn?2.2:1);py+=vy;if(py<=0){py=0;vy=0;jt=0}}
