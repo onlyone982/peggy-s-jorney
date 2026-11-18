@@ -21,7 +21,10 @@ const CFG={
   adDomain:'onedollardrive.com',             // 이동 안내 창에 보여줄 도메인 이름
   shareUrl:'https://peggy.day/',                               // 공유 버튼이 복사할 주소. 비워두면 지금 열려 있는 페이지 주소를 씀
   cloudSpeed:.9,                             // 구름 속도 (배경보다 훨씬 느리게)
-  fishEvery:3                                // 생선이 나오는 간격 (화면 몇 개 지날 때마다, 실제로는 +0~1)
+  fishEvery:3,                               // 생선이 나오는 간격 (화면 몇 개 지날 때마다, 실제로는 +0~1)
+  groundTint:[222,233,244],                  // 낮 바닥(거의 흰색 띠)에 곱하는 색. 숫자가 작을수록 어둡고 푸른 톤. null이면 보정 안 함
+  groundBand:[889,972],                      // 보정할 바닥 띠의 세로 범위 (bg_day.png 원본 픽셀 기준)
+  outline:.35, outlineColor:'#1d2b53'       // 장애물(눈사람·갈매기·바다표범) 외곽선 두께(게임 단위, 0이면 끔)와 색
 };
 
 /* ================= 화면 크기 ================= */
@@ -56,7 +59,23 @@ const smoothBg=(i)=>{
     BGD[i]=o;
   }catch(e){}
 };
-BG.forEach((im,i)=>{if(ok(im))smoothBg(i);else im.addEventListener('load',()=>smoothBg(i))});
+// 낮 배경의 바닥 띠는 거의 흰색이라 눈사람·갈매기가 묻히고 눈도 쉽게 피로합니다.
+// 띠 안에서 아주 밝은 픽셀만 부드럽게 어둡고 푸른 톤으로 바꿉니다 (원본 이미지 파일은 그대로, 물·하늘은 영향 없음).
+// 파일(file://)로 직접 열면 브라우저가 픽셀 읽기를 막아서 이 보정은 건너뜁니다.
+const toneGround=()=>{
+  const T=CFG.groundTint;if(!T)return;
+  try{
+    const s=BGD[0],w=s.naturalWidth||s.width,h=s.naturalHeight||s.height,c=document.createElement('canvas');
+    c.width=w;c.height=h;const x=c.getContext('2d');x.drawImage(s,0,0);
+    const y0=CFG.groundBand[0],y1=Math.min(h,CFG.groundBand[1]),d=x.getImageData(0,y0,w,y1-y0),p=d.data;
+    for(let i=0;i<p.length;i+=4){
+      let k=((.299*p[i]+.587*p[i+1]+.114*p[i+2])-200)/40;k=k<0?0:k>1?1:k;k=k*k*(3-2*k);   // 밝을수록 1에 가깝게
+      p[i]*=1-k+k*T[0]/255;p[i+1]*=1-k+k*T[1]/255;p[i+2]*=1-k+k*T[2]/255;
+    }
+    x.putImageData(d,0,y0);BGD[0]=c;
+  }catch(e){}
+};
+BG.forEach((im,i)=>{const go=()=>{smoothBg(i);if(i===0)toneGround()};if(ok(im))go();else im.addEventListener('load',go)});
 const CL=[1,2,3].map(n=>IM(IMG+'cloud_'+n+'.png'));
 const MOON=IM(IMG+'moon.png');
 const PF=Array.from({length:11},(_,i)=>IM(IMG+'penguin_'+String(i+1).padStart(2,'0')+'.png'));
@@ -180,6 +199,19 @@ function upd(){
 /* ================= 그리기 ================= */
 const z=n=>String(n|0).padStart(5,'0');
 const mix=(a,b,t)=>Math.round(a+(b-a)*t);
+// 장애물 외곽선: 스프라이트와 같은 모양의 어두운 실루엣을 8방향으로 살짝 비껴 그려서 테두리를 만듭니다
+const SIL=new Map();
+const sil=im=>{
+  let c=SIL.get(im);if(c)return c;
+  c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;
+  const x=c.getContext('2d');x.drawImage(im,0,0);x.globalCompositeOperation='source-in';x.fillStyle=CFG.outlineColor;x.fillRect(0,0,c.width,c.height);
+  SIL.set(im,c);return c;
+};
+const OFFS=[[1,0],[-1,0],[0,1],[0,-1],[.7,.7],[-.7,.7],[.7,-.7],[-.7,-.7]];
+const stroke=(im,x,y,w,h)=>{
+  const d=CFG.outline;if(!d||!ok(im))return;
+  const s=sil(im);for(const[a,b]of OFFS)cx.drawImage(s,x+a*d,y+b*d,w,h);
+};
 function drawPeng(){
   const gy=G*K,x=24*K,air=py>0||vy>0;
   const tot=jt+(vy+Math.sqrt(vy*vy+2*CFG.gravity*py))/CFG.gravity;           // 이번 점프의 전체 체공 시간 추정
@@ -212,9 +244,9 @@ function draw(){
   cx.setTransform(K,0,0,K,0,0);
   if(sm>.001){cx.globalAlpha=sm;cx.fillStyle='#fff1e8';fl.forEach(f=>cx.fillRect(f.x|0,f.y|0,f.v>.9?1:.5,f.v>.9?1:.5));cx.globalAlpha=1}
   obs.forEach(o=>{
-    if(o.k==='g'){const g=GF[(fc>>2)%6];if(ok(g))cx.drawImage(g,o.x,o.y,o.w,o.h)}
-    else if(o.k==='s'){if(ok(SNI))cx.drawImage(SNI,o.x,o.y,o.w,o.h)}
-    else{const f=(fc>>4)&1,im=LI[f];if(ok(im))cx.drawImage(im,o.x,o.y+o.h-LH[f],LW[f],LH[f])}   // 바다표범: 두 장면을 번갈아 재생
+    if(o.k==='g'){const g=GF[(fc>>2)%6];if(ok(g)){stroke(g,o.x,o.y,o.w,o.h);cx.drawImage(g,o.x,o.y,o.w,o.h)}}
+    else if(o.k==='s'){if(ok(SNI)){stroke(SNI,o.x,o.y,o.w,o.h);cx.drawImage(SNI,o.x,o.y,o.w,o.h)}}
+    else{const f=(fc>>4)&1,im=LI[f];if(ok(im)){stroke(im,o.x,o.y+o.h-LH[f],LW[f],LH[f]);cx.drawImage(im,o.x,o.y+o.h-LH[f],LW[f],LH[f])}}   // 바다표범: 두 장면을 번갈아 재생
   });
   if(ok(FSI))fsh.forEach(f=>cx.drawImage(FSI,f.x,f.y,FW,FH));
   drawPeng();
